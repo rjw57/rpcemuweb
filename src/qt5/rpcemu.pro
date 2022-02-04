@@ -1,9 +1,9 @@
 # http://doc.qt.io/qt-5/qmake-tutorial.html
 
 CONFIG += debug_and_release
+QMAKE_WASM_TOTAL_MEMORY = 1GB
 
-
-QT += core widgets gui multimedia
+QT += core widgets gui
 INCLUDEPATH += ../
 
 # -Werror=switch
@@ -14,6 +14,15 @@ INCLUDEPATH += ../
 #
 QMAKE_CFLAGS   += -Werror=switch -fno-common
 QMAKE_CXXFLAGS += -Werror=switch -fno-common
+
+wasm {
+	QMAKE_LFLAGS += --preload-file ../../roms@/roms
+	QMAKE_LFLAGS += --preload-file ../../hostfs@/hostfs
+	QMAKE_LFLAGS += --preload-file ../../cmos.ram@/cmos.ram
+	QMAKE_LFLAGS += --preload-file ../../rpc.cfg@/rpc.cfg
+	QMAKE_LFLAGS += --preload-file ../../poduleroms@/poduleroms
+	QMAKE_LFLAGS += --preload-file ../../netroms@/netroms
+}
 
 
 HEADERS =	../superio.h \
@@ -158,7 +167,14 @@ linux {
 			network_dialog.h
 }
 
-unix {
+wasm {
+	SOURCES +=	../network.c \
+			network_dialog.cpp
+	HEADERS +=	../network.h \
+			network_dialog.h
+}
+
+wasm {
 	SOURCES +=	keyboard_x.c \
 			../hostfs-unix.c \
 			../rpc-linux.c

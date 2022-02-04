@@ -23,8 +23,6 @@
 
 #include <iostream>
 
-#include <QAudioFormat>
-#include <QAudioOutput>
 #include <QFile>
 #include <QThread>
 
@@ -47,27 +45,10 @@ AudioOut *audio_out; /**< Our class used to hold QT sound variables */
  */
 AudioOut::AudioOut(uint32_t bufferlen)
 {
-	audio_output = NULL;
 	audio_io = NULL;
 
 	this->bufferlen = bufferlen;
 	this->samplerate = 0;
-
-	// Output some information to the log
-	QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-	rpclog("plt_sound: qt5 Audio Device: %s\n", info.deviceName().toLocal8Bit().constData());
-
-	QStringList codecs = info.supportedCodecs();
-	rpclog("plt_sound: qt5 Audio Codecs Supported: %d\n", codecs.size());
-	for(int i = 0; i < codecs.size(); i++) {
-		rpclog("%d: %s\n", i, codecs.at(i).toLocal8Bit().constData());
-	}
-
-	QList<int> samprates = info.supportedSampleRates();
-	rpclog("plt_sound: qt5 Audio SampleRates Supported: %d\n", samprates.size());
-	for(int i = 0; i < samprates.size(); i++) {
-		rpclog("%d: %d\n", i, samprates.at(i));
-	}
 }
 
 AudioOut::~AudioOut()
@@ -83,50 +64,7 @@ AudioOut::~AudioOut()
 void
 AudioOut::changeSampleRate(uint32_t samplerate)
 {
-	QAudioFormat format; /**< Qt output representing a kind of audio format */
-
 	this->samplerate = samplerate;
-
-	// Destroy any previous sound output
-	if(audio_output != NULL) {
-		delete audio_output;
-	}
-
-	// Set the format
-	format.setSampleRate(samplerate);
-	format.setChannelCount(2);         // Stereo
-	format.setSampleSize(16);          // 16 bit sound
-	format.setCodec("audio/pcm");
-	format.setByteOrder(QAudioFormat::LittleEndian);
-	format.setSampleType(QAudioFormat::SignedInt);
-
-	audio_output = new QAudioOutput(format);
-	if(QAudio::NoError != audio_output->error()) {
-		error("plt_sound: Failed to create QAudioOutput, no audio\n");
-		delete audio_output;
-		audio_output = NULL;
-		return;
-	}
-
-	// Verify the format we were given is usable
-	QAudioFormat checkFormat = audio_output->format();
-	if((int) samplerate != checkFormat.sampleRate()) {
-		rpclog("plt_sound: Tried to set sample rate %uHz but was given %dHz, audio may be distorted\n", samplerate, checkFormat.sampleRate());
-	}
-
-	audio_output->setCategory("RPCEmu"); // String used in OS Mixer
-
-	if(config.soundenabled) {
-		audio_output->setVolume(1.0f);
-	} else {
-		audio_output->setVolume(0.0f);
-	}
-
-	// Set qt buffer len to greater than buffers we are placing into it
-	// this prevents buffer underruns but will add latency
-	audio_output->setBufferSize(bufferlen * 4);
-
-	audio_io = audio_output->start();
 }
 
 /**
@@ -152,10 +90,6 @@ plt_sound_restart(void)
 {
 	assert(audio_out);
 	assert(config.soundenabled);
-
-	if(audio_out->audio_output) {
-		audio_out->audio_output->setVolume(1.0f);
-	}
 }
 
 /**
@@ -166,10 +100,6 @@ plt_sound_pause(void)
 {
 	assert(audio_out);
 	assert(!config.soundenabled);
-
-	if(audio_out->audio_output) {
-		audio_out->audio_output->setVolume(0.0f);
-	}
 }
 
 /**
@@ -183,15 +113,10 @@ int32_t
 plt_sound_buffer_free(void)
 {
 	assert(audio_out);
-
-	if(audio_out->audio_output) {
-		return audio_out->audio_output->bytesFree();
-	} else {
-		// The first time around we don't have an audio_output yet
-		// that'll be created by plt_sound_buffer_play(), so we must
-		// return that we can eat a buffer here else that'll never be called
-		return audio_out->bufferlen;
-	}
+	// The first time around we don't have an audio_output yet
+	// that'll be created by plt_sound_buffer_play(), so we must
+	// return that we can eat a buffer here else that'll never be called
+	return audio_out->bufferlen;
 }
 
 /**

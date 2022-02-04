@@ -73,7 +73,7 @@ extern "C" {
    version but not with the Allegro GUI. */
 #if defined __linux || defined __linux__ || defined WIN32 || defined _WIN32 || \
     defined RPCEMU_COCOA_GUI
-#define RPCEMU_NETWORKING
+// #define RPCEMU_NETWORKING
 #endif
 
 /*This makes the RISC OS mouse pointer follow the host pointer exactly. Useful

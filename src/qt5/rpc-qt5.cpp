@@ -143,12 +143,6 @@ sound_thread_start(void)
 	if (pthread_create(&sound_thread, NULL, sound_thread_function, NULL)) {
 		fatal("Couldn't create sound thread");
 	}
-
-#ifdef _GNU_SOURCE
-	if (0 != pthread_setname_np(sound_thread, "rpcemu: sound")) {
-		fatal("Couldn't set sound thread name");
-	}
-#endif // _GNU_SOURCE
 }
 
 /**
@@ -279,12 +273,6 @@ vidcstartthread(void)
 	if (pthread_create(&video_thread, NULL, vidcthreadrunner, NULL)) {
 		fatal("Couldn't create vidc thread");
 	}
-
-#ifdef _GNU_SOURCE
-	if (0 != pthread_setname_np(video_thread, "rpcemu: vidc")) {
-		fatal("Couldn't set vidc thread name");
-	}
-#endif // _GNU_SOURCE
 }
 
 /**
@@ -584,7 +572,7 @@ Emulator::mainemuloop()
 		if (config.network_type == NetworkType_NAT) {
 			network_nat_rate++;
 			if ((network_nat_rate & 0x3) == 0) {
-				network_nat_poll();
+				//network_nat_poll();
 			}
 		}
 	}
@@ -987,10 +975,10 @@ void
 Emulator::nat_rule_add(PortForwardRule rule)
 {
 	// Activate the rule changes
-	network_nat_forward_add(rule);
+	//network_nat_forward_add(rule);
 
 	// Update the stored list of rules
-	rpcemu_nat_forward_add(rule);
+	//rpcemu_nat_forward_add(rule);
 
 	// Save the settings to the rpc.cfg file
 	config_save(&config);
@@ -1006,7 +994,7 @@ void
 Emulator::nat_rule_edit(PortForwardRule old_rule, PortForwardRule new_rule)
 {
 	// Activate the rule changes
-	network_nat_forward_edit(old_rule, new_rule);
+	//network_nat_forward_edit(old_rule, new_rule);
 
 	// Update the stored list of rules
 	rpcemu_nat_forward_remove(old_rule);
@@ -1025,10 +1013,10 @@ void
 Emulator::nat_rule_remove(PortForwardRule rule)
 {
 	// Activate the rule changes
-	network_nat_forward_remove(rule);
+	//network_nat_forward_remove(rule);
 
 	// Update the stored list of rules
-	rpcemu_nat_forward_remove(rule);
+	//rpcemu_nat_forward_remove(rule);
 
 	// Save the settings to the rpc.cfg file
 	config_save(&config);

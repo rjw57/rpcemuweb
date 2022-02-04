@@ -1,0 +1,6 @@
+src/qt5/.qmake.stash
+src/qt5/rpcemu*.js_plugin_import.*
+src/qt5/Makefile
+src/qt5/Makefile.*
+rpcemu-interpreter
+rpcemu-interpreter.*

@@ -366,7 +366,7 @@ MainWindow::MainWindow(Emulator &emulator)
 #ifdef RPCEMU_NETWORKING
 	network_dialog = new NetworkDialog(emulator, &config_copy, this);
 #endif /* RPCEMU_NETWORKING */
-	nat_list_dialog = new NatListDialog(emulator, this);
+	//nat_list_dialog = new NatListDialog(emulator, this);
 	about_dialog = new AboutDialog(this);
 
 	// MIPS counting
@@ -387,7 +387,7 @@ MainWindow::~MainWindow()
 {
 #ifdef RPCEMU_NETWORKING
 	delete network_dialog;
-	delete nat_list_dialog;
+	//delete nat_list_dialog;
 #endif /* RPCEMU_NETWORKING */
 	delete configure_dialog;
 	delete about_dialog;
@@ -708,7 +708,7 @@ MainWindow::menu_networking()
 void
 MainWindow::menu_nat_list()
 {
-	nat_list_dialog->exec(); // Modal
+	//nat_list_dialog->exec(); // Modal
 }
 #endif /* RPCEMU_NETWORKING */
 
@@ -1309,7 +1309,7 @@ MainWindow::move_host_mouse(MouseMoveUpdate mouse_update)
 void
 MainWindow::send_nat_rule_to_gui(PortForwardRule rule)
 {
-	nat_list_dialog->add_nat_rule(rule);
+	// nat_list_dialog->add_nat_rule(rule);
 }
 
 /**
